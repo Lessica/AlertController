@@ -26,11 +26,12 @@ class AlertButton: UIView {
         label.font = action.font
 
         layer.borderWidth = 1
-        layer.borderColor = action.borderColor.cgColor
         backgroundColor = action.backgroundColor
 
         layer.cornerRadius = 12
         layer.cornerCurve = .continuous
+        
+        updateBorderColor()
 
         label.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
@@ -41,8 +42,6 @@ class AlertButton: UIView {
         ])
 
         isUserInteractionEnabled = true
-        let gesture = UITapGestureRecognizer(target: self, action: #selector(tapped))
-        addGestureRecognizer(gesture)
     }
 
     @available(*, unavailable)
@@ -50,14 +49,43 @@ class AlertButton: UIView {
         fatalError()
     }
 
-    @objc func tapped() {
-        alpha = 0.75
-        UIView.animate(withDuration: 0.25) {
-            self.alpha = 1
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesBegan(touches, with: event)
+        UIView.animate(withDuration: 0.1) {
+            self.alpha = 0.5
         }
-        DispatchQueue.main.async {
-            self.action.block()
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesEnded(touches, with: event)
+        UIView.animate(withDuration: 0.2) {
+            self.alpha = 1.0
         }
+        
+        if let touch = touches.first, bounds.contains(touch.location(in: self)) {
+            DispatchQueue.main.async {
+                self.action.block()
+            }
+        }
+    }
+    
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesCancelled(touches, with: event)
+        UIView.animate(withDuration: 0.2) {
+            self.alpha = 1.0
+        }
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            updateBorderColor()
+        }
+    }
+    
+    private func updateBorderColor() {
+        layer.borderColor = action.borderColor.cgColor
     }
 }
 

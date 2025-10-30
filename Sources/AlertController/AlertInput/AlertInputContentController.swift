@@ -83,6 +83,7 @@ class InputField: UIView, UITextFieldDelegate {
         textField.autocapitalizationType = .none
         textField.autocorrectionType = .no
         textField.allowsEditingTextAttributes = false
+        textField.tintColor = AlertControllerConfiguration.accentColor
 
         quickOptionButton.translatesAutoresizingMaskIntoConstraints = false
         quickOptionButton.imageView?.contentMode = .scaleAspectFit
