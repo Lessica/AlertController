@@ -51,16 +51,12 @@ class AlertButton: UIView {
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
-        UIView.animate(withDuration: 0.1) {
-            self.alpha = 0.5
-        }
+        fadeDown()
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesEnded(touches, with: event)
-        UIView.animate(withDuration: 0.2) {
-            self.alpha = 1.0
-        }
+        fadeRestore()
         
         if let touch = touches.first, bounds.contains(touch.location(in: self)) {
             DispatchQueue.main.async {
@@ -71,9 +67,7 @@ class AlertButton: UIView {
     
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesCancelled(touches, with: event)
-        UIView.animate(withDuration: 0.2) {
-            self.alpha = 1.0
-        }
+        fadeRestore()
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -123,4 +117,46 @@ extension ActionContext.Action {
             .systemFont(ofSize: UIFont.preferredFont(forTextStyle: .body).pointSize, weight: .regular)
         }
     }
+}
+
+private extension UIView {
+    func fadeDown(animated: Bool = true) {
+        if animated {
+            withCardSpringAnimation(duration: 0.2) {
+                self.alpha = 0.25
+            }
+        } else {
+            alpha = 0.25
+        }
+    }
+
+    func fadeRestore(animated: Bool = true) {
+        if animated {
+            withCardSpringAnimation(duration: 0.3) {
+                self.alpha = 1.0
+            }
+        } else {
+            alpha = 1.0
+        }
+    }
+}
+
+private func withCardSpringAnimation(
+    duration: TimeInterval = 0.75,
+    delay: TimeInterval = 0,
+    damping: CGFloat = 1.0,
+    velocity: CGFloat = 0.5,
+    options: UIView.AnimationOptions = [.allowUserInteraction, .allowAnimatedContent],
+    animations: @escaping () -> Void,
+    completion: ((Bool) -> Void)? = nil
+) {
+    UIView.animate(
+        withDuration: duration,
+        delay: delay,
+        usingSpringWithDamping: damping,
+        initialSpringVelocity: velocity,
+        options: options,
+        animations: animations,
+        completion: completion
+    )
 }
